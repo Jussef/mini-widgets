@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2 } from 'lucide-react';
+import { database } from '../config/firebase.js';
+import { ref, push, set, remove, onValue, off } from 'firebase/database';
 
 const TaskManager = () => {
-  const [tasks, setTasks] = useState([
-    { id: 1, name: 'Diseño de interfaz', status: 'activo' },
-    { id: 2, name: 'Desarrollo backend', status: 'pendiente' },
-    { id: 3, name: 'Revisión de código', status: 'cambios' },
-    { id: 4, name: 'Documentación API', status: 'entregado' }
-  ]);
+  const [tasks, setTasks] = useState([]);
   const [newTaskName, setNewTaskName] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  // Referencia a las tareas en Firebase
+  const tasksRef = ref(database, 'tasks');
 
   const statusConfig = {
     activo: { label: 'Activo', color: 'bg-blue-100 text-blue-700 border-blue-300' },
@@ -19,25 +20,69 @@ const TaskManager = () => {
     entregado: { label: 'Entregado', color: 'bg-green-100 text-green-700 border-green-300' }
   };
 
-  const addTask = () => {
+  // Cargar tareas desde Firebase al montar el componente
+  useEffect(() => {
+    const unsubscribe = onValue(tasksRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        // Convertir el objeto de Firebase a un array de tareas
+        const tasksArray = Object.keys(data).map(key => ({
+          id: key,
+          ...data[key]
+        }));
+        setTasks(tasksArray);
+      } else {
+        // Si no hay datos, inicializar con tareas de ejemplo
+        const initialTasks = [
+          { name: 'Diseño de interfaz', status: 'activo' },
+          { name: 'Desarrollo backend', status: 'pendiente' },
+          { name: 'Revisión de código', status: 'cambios' },
+          { name: 'Documentación API', status: 'entregado' }
+        ];
+        
+        // Agregar las tareas iniciales a Firebase
+        initialTasks.forEach(task => {
+          push(tasksRef, task);
+        });
+      }
+      setLoading(false);
+    });
+
+    // Cleanup function
+    return () => off(tasksRef, 'value', unsubscribe);
+  }, []);
+
+  const addTask = async () => {
     if (newTaskName.trim()) {
-      setTasks([...tasks, {
-        id: Date.now(),
-        name: newTaskName,
-        status: 'pendiente'
-      }]);
-      setNewTaskName('');
+      try {
+        await push(tasksRef, {
+          name: newTaskName.trim(),
+          status: 'pendiente',
+          createdAt: Date.now()
+        });
+        setNewTaskName('');
+      } catch (error) {
+        console.error('Error adding task:', error);
+      }
     }
   };
 
-  const deleteTask = (id) => {
-    setTasks(tasks.filter(task => task.id !== id));
+  const deleteTask = async (id) => {
+    try {
+      const taskRef = ref(database, `tasks/${id}`);
+      await remove(taskRef);
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
   };
 
-  const updateStatus = (id, newStatus) => {
-    setTasks(tasks.map(task => 
-      task.id === id ? { ...task, status: newStatus } : task
-    ));
+  const updateStatus = async (id, newStatus) => {
+    try {
+      const taskRef = ref(database, `tasks/${id}/status`);
+      await set(taskRef, newStatus);
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
   };
 
   const startEditing = (task) => {
@@ -45,20 +90,37 @@ const TaskManager = () => {
     setEditingName(task.name);
   };
 
-  const saveEdit = (id) => {
+  const saveEdit = async (id) => {
     if (editingName.trim()) {
-      setTasks(tasks.map(task => 
-        task.id === id ? { ...task, name: editingName } : task
-      ));
+      try {
+        const taskRef = ref(database, `tasks/${id}/name`);
+        await set(taskRef, editingName.trim());
+        setEditingId(null);
+        setEditingName('');
+      } catch (error) {
+        console.error('Error updating task name:', error);
+      }
+    } else {
+      setEditingId(null);
+      setEditingName('');
     }
-    setEditingId(null);
-    setEditingName('');
   };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <span className="ml-3 text-gray-600">Cargando tareas...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
+          <div className="bg-linear-to-r from-indigo-600 to-purple-600 p-6">
             <h1 className="text-3xl font-bold text-white">Gestor de Tareas</h1>
             <p className="text-indigo-100 mt-1">Organiza y monitorea el estado de tus tareas</p>
           </div>
