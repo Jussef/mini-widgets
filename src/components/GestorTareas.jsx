@@ -56,8 +56,6 @@ const TaskManager = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-      <div className="max-w-5xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
@@ -174,8 +172,6 @@ const TaskManager = () => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
   );
 };
 
