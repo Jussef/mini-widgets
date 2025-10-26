@@ -120,11 +120,10 @@ const TaskManager = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden transform scale-85 origin-top-left">
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
-        <h1 className="text-3xl font-bold text-white">Gestor de Tareas</h1>
-        <p className="text-indigo-100 mt-1">Organiza y monitorea el estado de tus tareas</p>
+        <h1 className="text-2xl font-bold text-white">Tareas</h1>
       </div>
 
       {/* Add Task Form */}
