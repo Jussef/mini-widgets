@@ -1,0 +1,83 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Mini Widgets - Gestor de Tareas">
+  <div class="min-h-screen bg-gray-100 py-8">
+    <div class="max-w-4xl mx-auto px-4">
+      <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">Gestor de Tareas</h1>
+        <p class="text-gray-600 mb-8">Crea y gestiona listas de tareas independientes</p>
+        
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Acceso rápido a listas</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <a href="/tareas/personal" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition">
+                Lista Personal
+              </a>
+              <a href="/tareas/trabajo" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg transition">
+                Lista Trabajo
+              </a>
+              <a href="/tareas/proyecto1" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 px-6 rounded-lg transition">
+                Proyecto 1
+              </a>
+            </div>
+          </div>
+          
+          <div class="border-t pt-6">
+            <h3 class="text-lg font-medium text-gray-700 mb-4">O crea una nueva lista personalizada</h3>
+            <div class="flex justify-center items-center space-x-2">
+              <span class="text-gray-600">http://localhost:4321/tareas/</span>
+              <input 
+                type="text" 
+                id="customListId" 
+                placeholder="mi-lista-id"
+                class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <button 
+                id="goButton"
+                class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md transition"
+              >
+                Ir
+              </button>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">
+              Cada ID único creará una lista de tareas independiente
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function goToCustomList() {
+      const input = document.getElementById('customListId');
+      const listId = input?.value.trim();
+      if (listId) {
+        window.location.href = `/tareas/${encodeURIComponent(listId)}`;
+      } else {
+        alert('Por favor ingresa un ID para la lista');
+      }
+    }
+
+    // Esperar a que el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+      const input = document.getElementById('customListId');
+      const button = document.getElementById('goButton');
+      
+      if (button) {
+        button.addEventListener('click', goToCustomList);
+      }
+      
+      if (input) {
+        input.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            goToCustomList();
+          }
+        });
+      }
+    });
+  </script>
+</Layout>

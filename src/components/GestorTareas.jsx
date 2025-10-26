@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
-const TaskManager = () => {
+const TaskManager = ({ listId = 'default' }) => {
   const [tasks, setTasks] = useState([]);
   const [newTaskName, setNewTaskName] = useState('');
   const [editingId, setEditingId] = useState(null);
@@ -19,13 +19,14 @@ const TaskManager = () => {
   // Cargar tareas desde Supabase
   useEffect(() => {
     loadTasks();
-  }, []);
+  }, [listId]);
 
   const loadTasks = async () => {
     try {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
+        .eq('list_id', listId)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -42,7 +43,7 @@ const TaskManager = () => {
       try {
         const { data, error } = await supabase
           .from('tasks')
-          .insert([{ name: newTaskName, status: 'pendiente' }])
+          .insert([{ name: newTaskName, status: 'pendiente', list_id: listId }])
           .select();
         
         if (error) throw error;
@@ -122,8 +123,8 @@ const TaskManager = () => {
   return (
     <div className="bg-white rounded-lg shadow-lg">
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
-        <h1 className="text-xl font-bold text-white" style={{fontSize: '0.8rem'}}>Tareas</h1>
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2">
+        <h1 className="text-xl font-bold text-white">Tareas - Lista {listId}</h1>
       </div>
 
       {/* Add Task Form */}

@@ -1,0 +1,10 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import TaskManager from "../../components/GestorTareas.jsx";
+
+const { id } = Astro.params;
+---
+
+<Layout title={`Gestor de Tareas - Lista ${id}`}>
+  <TaskManager client:load listId={id} />
+</Layout>
