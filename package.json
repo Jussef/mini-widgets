@@ -20,6 +20,7 @@
     "lucide-react": "^0.546.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "sweetalert2": "^11.26.3",
     "tailwindcss": "^4.1.16"
   }
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function CalendarioSimple() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -34,8 +35,14 @@ export default function CalendarioSimple() {
         <div
           key={dia}
           className={`aspect-square flex items-center justify-center text-lg rounded-lg
-            ${esHoy ? "bg-blue-600 text-white font-bold" : "bg-white text-gray-800 hover:bg-gray-300 cursor-pointer"}
+            ${esHoy ? "bg-blue-600 text-white font-bold hover:bg-blue-300 cursor-pointer" : "bg-white text-gray-800 hover:bg-gray-300 cursor-pointer"}
             transition-colors duration-200`}
+            onClick={() => Swal.fire({
+              title: `Día ${dia} de ${meses[mesActual]} ${añoActual}`,
+              text: 'Aquí puedes agregar eventos o notas para este día.',
+              icon: 'info',
+              confirmButtonText: 'Cerrar',
+            })}
         >
           {dia}
         </div>,

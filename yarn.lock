@@ -3328,6 +3328,11 @@ strip-ansi@^7.0.1, strip-ansi@^7.1.0:
   dependencies:
     ansi-regex "^6.0.1"
 
+sweetalert2@^11.26.3:
+  version "11.26.3"
+  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-11.26.3.tgz#6e8188cf71818af34d62fe33a2465690cde9836d"
+  integrity sha512-VU0hGw/WfI9h7Mh+SCsDlWgtxDwWZ6ccqS7QcO8zEeWnwplN1GptcLstq76OluUBSLUza6ldvKd3558OhjpJ9A==
+
 tailwindcss@4.1.16, tailwindcss@^4.1.16:
   version "4.1.16"
   resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-4.1.16.tgz#c32179f98725eb551e5c1189813a3db437ad5a7f"
