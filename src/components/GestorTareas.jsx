@@ -7,19 +7,20 @@ const TaskManager = ({ listId = 'default' }) => {
   const [newTaskName, setNewTaskName] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState('');
+  const [hasChanges, setHasChanges] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const statusConfig = {
-    activo: { label: 'Activo', color: 'bg-blue-100 text-blue-700 border-blue-300' },
-    pendiente: { label: 'Pendiente', color: 'bg-yellow-100 text-yellow-700 border-yellow-300' },
-    cambios: { label: 'Cambios', color: 'bg-orange-100 text-orange-700 border-orange-300' },
-    entregado: { label: 'Entregado', color: 'bg-green-100 text-green-700 border-green-300' }
+    activo: { label: 'Activo', color: 'bg-blue-100 text-blue-700 border-blue-300', prioridad: 1 },
+    cambios: { label: 'Cambios', color: 'bg-orange-100 text-orange-700 border-orange-300', prioridad: 2 },
+    pendiente: { label: 'Pendiente', color: 'bg-yellow-100 text-yellow-700 border-yellow-300', prioridad: 3 },
+    entregado: { label: 'Entregado', color: 'bg-green-100 text-green-700 border-green-300', prioridad: 4 }
   };
 
-  // Cargar tareas desde Supabase
+
   useEffect(() => {
     loadTasks();
-  }, [listId]);
+  }, [listId, hasChanges]);
 
   const loadTasks = async () => {
     try {
@@ -30,7 +31,12 @@ const TaskManager = ({ listId = 'default' }) => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
+
+      data.sort((a, b) => {
+        return statusConfig[a.status].prioridad - statusConfig[b.status].prioridad;
+      });
       setTasks(data || []);
+
     } catch (error) {
       console.error('Error cargando tareas:', error);
     } finally {
@@ -82,6 +88,7 @@ const TaskManager = ({ listId = 'default' }) => {
       setTasks(tasks.map(task => 
         task.id === id ? { ...task, status: newStatus } : task
       ));
+      setHasChanges(!hasChanges);
     } catch (error) {
       console.error('Error actualizando estado:', error);
     }
