@@ -36,7 +36,9 @@ export default function CalendarioSimple() {
 
       const notasMap = {};
       data?.forEach(nota => {
-        const dia = new Date(nota.fecha).getDate();
+        // Parsear la fecha directamente sin conversión de zona horaria
+        const fechaParts = nota.fecha.split('-');
+        const dia = parseInt(fechaParts[2], 10);
         notasMap[dia] = {
           nota: nota.nota,
           updated_at: nota.updated_at
@@ -58,6 +60,32 @@ export default function CalendarioSimple() {
     const fechaSeleccionada = `${añoActual}-${String(mesActual + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
     const notaExistente = notas[dia]?.nota || '';
 
+    if (notaExistente) {
+      // Si ya existe una nota, mostrar primero el texto
+      const resultado = await Swal.fire({
+        title: `${dia} de ${meses[mesActual]} ${añoActual}`,
+        html: `<div style="text-align: left; white-space: pre-wrap; max-height: 400px; overflow-y: auto; padding: 10px; background: #f9fafb; border-radius: 8px;">${notaExistente}</div>`,
+        showCancelButton: true,
+        confirmButtonText: 'Editar',
+        cancelButtonText: 'Cerrar',
+        heightAuto: false,
+        width: '90%',
+        customClass: {
+          popup: 'swal-wide'
+        }
+      });
+
+      if (resultado.isConfirmed) {
+        // Si presiona "Editar", abrir el textarea
+        await abrirEditorNota(fechaSeleccionada, dia, notaExistente);
+      }
+    } else {
+      // Si no hay nota, abrir directamente el editor
+      await abrirEditorNota(fechaSeleccionada, dia, '');
+    }
+  };
+
+  const abrirEditorNota = async (fechaSeleccionada, dia, notaExistente) => {
     const { value: nuevaNota } = await Swal.fire({
       title: `${dia} de ${meses[mesActual]} ${añoActual}`,
       input: 'textarea',
@@ -68,8 +96,13 @@ export default function CalendarioSimple() {
       confirmButtonText: 'Guardar',
       cancelButtonText: 'Cancelar',
       heightAuto: false,
+      width: '90%',
       inputAttributes: {
-        'aria-label': 'Nota del día'
+        'aria-label': 'Nota del día',
+        style: 'min-height: 150px;'
+      },
+      customClass: {
+        popup: 'swal-wide'
       }
     });
 
@@ -151,21 +184,21 @@ export default function CalendarioSimple() {
         textColor = "text-white font-bold";
         hoverColor = "hover:bg-blue-300";
       } else if (tieneNota) {
-        bgColor = "bg-blue-50";
+        bgColor = "bg-orange-50";
         hoverColor = "hover:bg-blue-100";
       }
 
       dias.push(
         <div
           key={dia}
-          className={`w-full h-full min-h-[2rem] flex items-center justify-center text-sm md:text-base rounded-lg relative
+          className={`w-full h-full min-h-[2rem] flex flex-col items-center justify-center text-sm md:text-base rounded-lg relative
             ${bgColor} ${textColor} ${hoverColor} cursor-pointer
             transition-colors duration-200`}
           onClick={() => manejarClickDia(dia)}
         >
           <span>{dia}</span>
           {tieneNota && (
-            <div className={`absolute top-0.5 right-0.5 w-4 h-2 rounded-full
+            <div className={`w-4 h-2 rounded-full mt-1
               ${esHoy ? "bg-yellow-400" : esNotaNueva ? "bg-orange-500" : "bg-blue-500"}`}
             ></div>
           )}
